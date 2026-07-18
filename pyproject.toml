@@ -1,0 +1,12 @@
+[project]
+name = "enterprise-grade-rag-applications"
+version = "0.1.0"
+description = "A modular, production-ready framework for building enterprise-grade RAG and agentic AI applications with FastAPI and LangGraph."
+readme = "README.md"
+requires-python = ">=3.11.12"
+dependencies = [
+    "fastapi>=0.139.2",
+    "pydantic>=2.13.4",
+    "python-dotenv>=1.2.2",
+    "uvicorn[standard]>=0.51.0",
+]

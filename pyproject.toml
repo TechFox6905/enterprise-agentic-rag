@@ -5,8 +5,17 @@ description = "A modular, production-ready framework for building enterprise-gra
 readme = "README.md"
 requires-python = ">=3.11.12"
 dependencies = [
+    "bs4>=0.0.2",
     "fastapi>=0.139.2",
+    "langchain-google-genai>=4.2.7",
+    "logfire>=4.37.0",
+    "pdfplumber>=0.11.10",
     "pydantic>=2.13.4",
+    "python-docx>=1.2.0",
     "python-dotenv>=1.2.2",
+    "python-pptx>=1.0.2",
+    "qdrant-client>=1.18.0",
+    "sentence-transformers>=5.6.0",
+    "unstructured>=0.24.1",
     "uvicorn[standard]>=0.51.0",
 ]

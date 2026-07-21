@@ -10,21 +10,24 @@ load_dotenv()
 logfire.configure(token=os.getenv("LOGFIRE_TOKEN"))
 
 # Now safe to import app modules - logfire is already active
-from fastapi import FastAPI, Response  # noqa: E402
 from app.agents.graph import rag_agent  # noqa: E402
+from app.guardrails import initialize_rails, guard   # noqa: E402
+from contextlib import asynccontextmanager  # noqa: E402
+from fastapi import FastAPI, Response  # noqa: E402
 from pydantic import BaseModel  # noqa: E402
 from typing import Optional  # noqa: E402
 
 
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    initialize_rails()
+
+    yield
+
+
 # Initialize FastAPI
-app = FastAPI(title="Enterprise Agentic RAG API")
+app = FastAPI(title="Enterprise Agentic RAG API", lifespan=lifespan)
 
-
-# @asynccontextmanager
-# async def lifespan(app: FastAPI):
-#     initialize_rails()
-
-#     yield
 
 class QueryRequest(BaseModel):
     q: str
@@ -68,17 +71,17 @@ def query(request: QueryRequest):
     config = {"configurable": {"thread_id": thread_id}}
     
     try:
-        # # Gate 1: NeMo Guardrails — blocks off-topic, jailbreaks, and handles dialog
-        # rail_fired, rail_response = guard(q)
-        # if rail_fired:
-        #     logfire.info(f"🛡️ Request blocked by guardrails | thread={thread_id}")
-        #     return {
-        #         "question": q,
-        #         "answer": rail_response,
-        #         "thought_process": ["Intent: Guardrails Fired", "Retrieval: Skipped"],
-        #         "status": "Blocked by guardrails.",
-        #         "sources": []
-        #     }
+        # Gate 1: NeMo Guardrails — blocks off-topic, jailbreaks, and handles dialog
+        rail_fired, rail_response = guard(q)
+        if rail_fired:
+            logfire.info(f"🛡️ Request blocked by guardrails | thread={thread_id}")
+            return {
+                "question": q,
+                "answer": rail_response,
+                "thought_process": ["Intent: Guardrails Fired", "Retrieval: Skipped"],
+                "status": "Blocked by guardrails.",
+                "sources": []
+            }
 
         # Gate 2: LangGraph RAG pipeline
         # Run the graph synchronously to preserve Logfire context variables

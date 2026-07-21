@@ -18,6 +18,13 @@ class Setting:
 
     # --- Chunking ---
     chunk_size: int = 1500
+
+    # --- LLM GATEWAY (PORTKEY) ---
+    PORTKEY_API_KEY = os.getenv("PORTKEY_API_KEY")
+    PORTKEY_CONFIG_ID = os.getenv("PORTKEY_CONFIG_ID")
+    GROQ_SLUG =  "rag-project"     # primary: @rag/llama-3.3-70b-versatile
+    GROQ_SLUG_2 = "rag-project2"  # fallback: @brag/llama-3.1-8b-instant
+     
    
 
 settings = Setting()

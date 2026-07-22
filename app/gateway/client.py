@@ -1,5 +1,5 @@
-from portkey_ai import Portkey, createHeaders, PORTKEY_GATEWAY_URL
-from openai import AsyncOpenAI
+from portkey_ai import createHeaders, PORTKEY_GATEWAY_URL
+from openai import AsyncOpenAI, OpenAI
 from langchain_openai import ChatOpenAI
 
 from app.config import settings
@@ -35,11 +35,12 @@ def _make_headers(feature: str = "rag") -> dict:
 # We use the OpenAI SDK directly because the native Portkey SDK does not
 # surface a first-class config_id constructor parameter; the header-based
 # approach works reliably with block_inline_config enabled.
-portkey_client = Portkey(
-    api_key=settings.PORTKEY_API_KEY,
-    base_url=PORTKEY_GATEWAY_URL,
-    default_headers=_make_headers(),
-)
+def get_portkey_client(feature: str = "rag") -> OpenAI:
+    return OpenAI(
+        api_key=settings.PORTKEY_API_KEY,
+        base_url=PORTKEY_GATEWAY_URL,
+        default_headers=_make_headers(feature),
+    )
 
 
 def get_langchain_llm(feature: str = "rag") -> ChatOpenAI:

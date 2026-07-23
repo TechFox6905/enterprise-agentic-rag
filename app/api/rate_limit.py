@@ -9,7 +9,7 @@ Centralized SlowAPI rate limiting.
 from __future__ import annotations
 
 import logfire
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 
 from app.config import settings
 
@@ -75,7 +75,18 @@ class _AppLimiter:
 
             @functools.wraps(func)
             def wrapper(*args, **kwargs):
-                limiter = getattr(self.app.state, "limiter", None)
+                request: Request | None = kwargs.get("request")
+
+                if request is None:
+                    for arg in args:
+                        if isinstance(arg, Request):
+                            request = arg
+                            break
+
+                if request is None:
+                    return func(*args, **kwargs)
+                
+                limiter = getattr(request.app.state, "limiter", None)
                 if limiter is None:
                     return func(*args, **kwargs)
 

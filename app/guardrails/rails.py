@@ -19,7 +19,8 @@ def initialize_rails() -> None:
 
     guard_llm = ChatGroq(
         api_key=settings.GROQ_API_KEY,
-        model=settings.GROQ_MODEL_INSTANT
+        model=settings.GROQ_MODEL_INSTANT,
+        temperature=0
     )
 
     config = RailsConfig.from_content(

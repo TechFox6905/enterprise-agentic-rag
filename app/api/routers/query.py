@@ -22,7 +22,7 @@ class QueryRequest(BaseModel):
     thread_id: Optional[str] = "default_user"
 
 
-@router.get("/query")
+@router.post("/query")
 @rate_limit()
 def query(
     request: Request,

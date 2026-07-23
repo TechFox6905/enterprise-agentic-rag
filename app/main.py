@@ -27,8 +27,9 @@ from prometheus_fastapi_instrumentator import Instrumentator
 from app.agents.graph import build_graph
 from app.guardrails import initialize_rails
 from app.api.auth import verify_api_key
-from app.api.rate_limit import _init_rate_limiter
+from app.api.rate_limit import _init_rate_limiter, app_limiter
 from app.api.routers.health import router as health_router
+from app.api.routers.query import router as query_router
 from app.services.health.connection_checker import check_all_connections, log_connection_summary
 
 
@@ -45,7 +46,8 @@ async def lifespan(app: FastAPI):
     app.state.rag_agent = build_graph()
 
     # Configure Redis/in-memory rate limiter.
-    app.state.rate_limiter_enabled = _init_rate_limiter()
+    app.state.rate_limiter_enabled = _init_rate_limiter(app)
+    app_limiter.init_app(app)
 
     # Verify external services.
     connection_results = check_all_connections()
@@ -76,6 +78,7 @@ async def lifespan(app: FastAPI):
 # Initialize FastAPI
 app = FastAPI(title="Enterprise Agentic RAG API", lifespan=lifespan)
 app.include_router(health_router)
+app.include_router(query_router)
 
 # Expose Prometheus metrics at /metrics with default request instrumentation.
 Instrumentator().instrument(app).expose(app, endpoint="/metrics", include_in_schema=False)

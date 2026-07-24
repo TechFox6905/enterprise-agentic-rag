@@ -1,12 +1,10 @@
+import logfire
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
-import logfire
-
 from app.config import settings
 
-
-_security = HTTPBearer(auto_error=False)
+_security = HTTPBearer(auto_error=True)
 
 
 def verify_api_key(credentials: HTTPAuthorizationCredentials = Depends(_security)):

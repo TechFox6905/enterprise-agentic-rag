@@ -71,7 +71,7 @@ jobs:
               -e "s|<UPSTASH_REDIS_REST_TOKEN_ARN>|$UPSTASH_REDIS_REST_TOKEN_ARN|g" \
               -e "s|<QDRANT_URL_ARN>|$QDRANT_URL_ARN|g" \
               -e "s|<QDRANT_API_KEY_ARN>|$QDRANT_API_KEY_ARN|g" \
-              -e "s|<GROQ_API_KEY_ARN>|$OPENAI_API_KEY_ARN|g" \
+              -e "s|<GROQ_API_KEY_ARN>|$GROQ_API_KEY_ARN|g" \
               -e "s|<JINA_API_KEY_ARN>|$JINA_API_KEY_ARN|g" \
               -e "s|<PORTKEY_API_KEY_ARN>|$PORTKEY_API_KEY_ARN|g" \
               -e "s|<RAG_API_KEY_ARN>|$RAG_API_KEY_ARN|g" \

@@ -55,3 +55,8 @@ tenvv
 
 # Logs
 *.log
+
+# Others
+scripts
+processed_data
+structure.txt

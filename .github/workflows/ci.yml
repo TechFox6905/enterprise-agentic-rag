@@ -28,12 +28,19 @@ jobs:
         uses: astral-sh/setup-uv@v5
 
       - name: Install dependencies
-        run: uv sync --frozen
+        run: uv sync --extra dev --frozen
+
+      - name: Verify environment
+        run: |
+          uv --version
+          python --version
+          uv run ruff --version
+          uv run pytest --version
 
       - name: Lint with ruff
         run: |
-          ruff check app tests evals
-          ruff format --check app tests evals
+          uv run ruff check app tests evals
+          uv run ruff format --check app tests evals
 
       - name: Test with pytest
         env:
@@ -47,4 +54,4 @@ jobs:
           UPSTASH_REDIS_REST_URL: https://dummy.example.com
           UPSTASH_REDIS_REST_TOKEN: dummy
         run: |
-          pytest tests/
+          uv run pytest tests/

@@ -53,3 +53,6 @@ dev = [
 "evals/app.py" = ["E402"]
 "app/main.py" = ["E402"]
 "app/ingestion/processor.py" = ["E402"]
+# __init__.py files re-export public symbols.
+"app/**/__init__.py" = ["F401"]
+"evals/__init__.py" = ["F401"]

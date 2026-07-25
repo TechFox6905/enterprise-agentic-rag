@@ -12,7 +12,11 @@ from app.api.auth import verify_api_key
 from app.guardrails import guard
 from app.logging import set_request_id
 from app.api.rate_limit import rate_limit
-from app.api.metrics import RAG_REQUEST_DURATION, RAG_REQUESTS_TOTAL, GUARDRAILS_BLOCKS_TOTAL
+from app.api.metrics import (
+    RAG_REQUEST_DURATION,
+    RAG_REQUESTS_TOTAL,
+    GUARDRAILS_BLOCKS_TOTAL,
+)
 
 router = APIRouter(tags=["query"])
 
@@ -46,7 +50,11 @@ def query(
             GUARDRAILS_BLOCKS_TOTAL.labels(blocked="true").inc()
             RAG_REQUESTS_TOTAL.labels(status="blocked").inc()
             RAG_REQUEST_DURATION.observe(time.perf_counter() - start)
-            logfire.info("🛡️ Request blocked by guardrails", request_id=request_id, thread_id=thread_id)
+            logfire.info(
+                "🛡️ Request blocked by guardrails",
+                request_id=request_id,
+                thread_id=thread_id,
+            )
             return {
                 "question": q,
                 "answer": rail_response,

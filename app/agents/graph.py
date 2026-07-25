@@ -25,11 +25,11 @@ def create_checkpointer() -> BaseCheckpointSaver:
         pool = ConnectionPool(
             conninfo=settings.postgres_uri,
             max_size=20,
-            open=False,     # Don't connect immediately, just configure the pool.
-            timeout=10,     # Wait time at most for a connection
+            open=False,  # Don't connect immediately, just configure the pool.
+            timeout=10,  # Wait time at most for a connection
             num_workers=3,
             check=ConnectionPool.check_connection,
-            max_idle=240,   # Connections idle time, after it closed
+            max_idle=240,  # Connections idle time, after it closed
         )
         # Verify connectivity before committing to Postgres; otherwise the first
         # graph invocation will hang on connection retries.
@@ -43,7 +43,9 @@ def create_checkpointer() -> BaseCheckpointSaver:
             with PostgresSaver.from_conn_string(settings.postgres_uri) as setup_saver:
                 setup_saver.setup()
         except Exception as e:
-            logfire.warning(f"⚠️ Postgres checkpointer setup failed ({e}); falling back to MemorySaver.")
+            logfire.warning(
+                f"⚠️ Postgres checkpointer setup failed ({e}); falling back to MemorySaver."
+            )
             pool.close()
             return MemorySaver()
 
@@ -90,14 +92,8 @@ def build_graph(checkpointer: BaseCheckpointSaver | None = None) -> StateGraph:
 
     # Conditional Edge: Planner -> Router -> (Retriever OR Responder)
     workflow.add_conditional_edges(
-        "planner",
-        route_planner,
-        {
-            "retriever": "retriever",
-            "responder": "responder"
-        }
+        "planner", route_planner, {"retriever": "retriever", "responder": "responder"}
     )
-
 
     workflow.add_edge("retriever", "responder")
     workflow.add_edge("responder", END)

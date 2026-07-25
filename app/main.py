@@ -16,7 +16,9 @@ if not _logfire_base_url and settings.LOGFIRE_TOKEN:
 
 logfire.configure(
     token=settings.LOGFIRE_TOKEN,
-    advanced=logfire.AdvancedOptions(base_url=_logfire_base_url) if _logfire_base_url else None,
+    advanced=logfire.AdvancedOptions(base_url=_logfire_base_url)
+    if _logfire_base_url
+    else None,
 )
 
 # Now safe to import app modules - logfire is already active
@@ -30,7 +32,10 @@ from app.api.auth import verify_api_key
 from app.api.rate_limit import _init_rate_limiter, app_limiter
 from app.api.routers.health import router as health_router
 from app.api.routers.query import router as query_router
-from app.services.health.connection_checker import check_all_connections, log_connection_summary
+from app.services.health.connection_checker import (
+    check_all_connections,
+    log_connection_summary,
+)
 
 
 @asynccontextmanager
@@ -55,9 +60,7 @@ async def lifespan(app: FastAPI):
 
     if settings.STRICT_STARTUP and not all_healthy:
         failed = [
-            name
-            for name, result in connection_results.items()
-            if not result.healthy
+            name for name, result in connection_results.items() if not result.healthy
         ]
         raise RuntimeError(
             f"STRICT_STARTUP enabled; failing services: {', '.join(failed)}"
@@ -81,7 +84,9 @@ app.include_router(health_router)
 app.include_router(query_router)
 
 # Expose Prometheus metrics at /metrics with default request instrumentation.
-Instrumentator().instrument(app).expose(app, endpoint="/metrics", include_in_schema=False)
+Instrumentator().instrument(app).expose(
+    app, endpoint="/metrics", include_in_schema=False
+)
 
 
 @app.get("/")

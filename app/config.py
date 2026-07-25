@@ -35,16 +35,18 @@ class Settings(BaseSettings):
     GROQ_MODEL_INSTANT: str = "llama-3.1-8b-instant"
     JUDGE_GROQ_API_KEY: str | None = None
 
-        # --- LLM GATEWAY (PORTKEY) ---
+    # --- LLM GATEWAY (PORTKEY) ---
     PORTKEY_API_KEY: str
     PORTKEY_PRIMARY_SLUG: str = "rag-project"
     PORTKEY_FALLBACK_SLUG: str = "rag-project2"
     # Portkey saved config is referenced by its system-generated `pc-...` ID.
     # Required when block_inline_config is enabled on the workspace.
     PORTKEY_PRIMARY_CONFIG_ID: str
-    
+
     # --- VECTOR DB (QDRANT) ---
-    QDRANT_URL: str = Field(validation_alias=AliasChoices("QDRANT_URL", "QDRANT_CLUSTER_ENDPOINT"))
+    QDRANT_URL: str = Field(
+        validation_alias=AliasChoices("QDRANT_URL", "QDRANT_CLUSTER_ENDPOINT")
+    )
     QDRANT_API_KEY: str | None = None
     QDRANT_COLLECTION: str = "enterprise_rag"
 
@@ -65,7 +67,9 @@ class Settings(BaseSettings):
 
     # --- Observability ---
     LOGFIRE_TOKEN: str | None = None
-    LOGFIRE_BASE_URL: str | None = None  # e.g. https://logfire-eu.pydantic.dev for EU tokens
+    LOGFIRE_BASE_URL: str | None = (
+        None  # e.g. https://logfire-eu.pydantic.dev for EU tokens
+    )
     LANGSMITH_TRACING: str = "true"
     LANGSMITH_API_KEY: str | None = None
     LANGSMITH_PROJECT: str = "rag_scale_test"
@@ -92,7 +96,9 @@ class Settings(BaseSettings):
         options to keep the connection pool healthy between requests.
         """
         base = self.NEON_DB_URL.rstrip("/")
-        keepalive = "keepalives=1&keepalives_idle=30&keepalives_interval=10&keepalives_count=5"
+        keepalive = (
+            "keepalives=1&keepalives_idle=30&keepalives_interval=10&keepalives_count=5"
+        )
         if "?" in base:
             return f"{base}&{keepalive}"
         return f"{base}?{keepalive}"

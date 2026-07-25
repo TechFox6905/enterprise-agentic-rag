@@ -9,7 +9,7 @@ import logfire
 # Initialize Logfire
 try:
     logfire.configure(token=st.secrets.get("LOGFIRE_TOKEN", os.getenv("LOGFIRE_TOKEN")))
-    logfire.instrument_requests()   # propagates trace context to the FastAPI backend
+    logfire.instrument_requests()  # propagates trace context to the FastAPI backend
     LOGFIRE_STATUS = "Connected & Tracing"
 except Exception:
     LOGFIRE_STATUS = "Standby (No Token)"
@@ -43,9 +43,11 @@ with st.sidebar:
     st.markdown("---")
     st.success(f"Logfire: {LOGFIRE_STATUS}")
     st.info(f"Memory ID: {st.session_state.session_id[:8]}")
-    
+
     if st.button("🗑️ Clear History & Memory", width="stretch", type="primary"):
-        logfire.warning(f"🗑️ Memory Wipe Triggered for session: {st.session_state.session_id}")
+        logfire.warning(
+            f"🗑️ Memory Wipe Triggered for session: {st.session_state.session_id}"
+        )
         st.session_state.messages = []
         st.session_state.session_id = str(uuid.uuid4())
         st.rerun()
@@ -62,8 +64,11 @@ for message in st.session_state.messages:
 # Chat Input
 if prompt := st.chat_input("Ask about your documentation..."):
     # START TRACE: User Interaction
-    with logfire.span("💬 User Chat Interaction", user_query=prompt, session_id=st.session_state.session_id):
-        
+    with logfire.span(
+        "💬 User Chat Interaction",
+        user_query=prompt,
+        session_id=st.session_state.session_id,
+    ):
         st.session_state.messages.append({"role": "user", "content": prompt})
         with st.chat_message("user", avatar=USER_AVATAR):
             st.markdown(prompt)
@@ -75,11 +80,16 @@ if prompt := st.chat_input("Ask about your documentation..."):
                 try:
                     with logfire.span("📡 Calling RAG Backend"):
                         url = f"{base_url}/query"
-                        payload = {"q": prompt, "thread_id": st.session_state.session_id}
+                        payload = {
+                            "q": prompt,
+                            "thread_id": st.session_state.session_id,
+                        }
                         response = requests.post(url, json=payload, timeout=60)
 
                         if response.status_code != 200:
-                            st.error(f"Backend Error: {response.status_code} - {response.text}")
+                            st.error(
+                                f"Backend Error: {response.status_code} - {response.text}"
+                            )
                             st.stop()
 
                         data = response.json()
@@ -88,7 +98,9 @@ if prompt := st.chat_input("Ask about your documentation..."):
                     for step in steps:
                         st.markdown(f"⚙️ {step}", unsafe_allow_html=False)
 
-                    status.update(label="✅ Answer Synthesized", state="complete", expanded=False)
+                    status.update(
+                        label="✅ Answer Synthesized", state="complete", expanded=False
+                    )
 
                 except Exception as e:
                     logfire.error(f"❌ UI-Backend Connection Failed: {e}")
@@ -117,5 +129,7 @@ if prompt := st.chat_input("Ask about your documentation..."):
             else:
                 st.caption("ℹ️ No context retrieved — conversational response.")
 
-            st.session_state.messages.append({"role": "assistant", "content": full_answer})
+            st.session_state.messages.append(
+                {"role": "assistant", "content": full_answer}
+            )
             logfire.info("✅ Chat cycle completed successfully.")

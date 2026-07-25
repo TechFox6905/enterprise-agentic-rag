@@ -15,7 +15,9 @@ def _load_fallback():
     """Load the local mxbai fallback model."""
     from sentence_transformers import SentenceTransformer
 
-    logfire.info(f"Loading fallback embedding model ({settings.JINA_FALLBACK_MODEL}, {settings.EMBEDDING_DIM}-dim).")
+    logfire.info(
+        f"Loading fallback embedding model ({settings.JINA_FALLBACK_MODEL}, {settings.EMBEDDING_DIM}-dim)."
+    )
     return SentenceTransformer(settings.JINA_FALLBACK_MODEL)
 
 
@@ -47,7 +49,9 @@ def _probe_jina_api() -> bool:
         logfire.info("Jina Embeddings API ready (jina-embeddings-v3, 1024-dim).")
         return True
     except Exception as e:
-        logfire.warning(f"Jina Embeddings API probe failed: {e}. Will use local fallback embeddings.")
+        logfire.warning(
+            f"Jina Embeddings API probe failed: {e}. Will use local fallback embeddings."
+        )
         return False
 
 
@@ -158,7 +162,9 @@ def _embed(texts: list[str], task: str) -> list[list[float]]:
         try:
             return _embed_jina(texts, task)
         except Exception as e:
-            logfire.error(f"Jina Embeddings API failed: {e}. Falling back to local model.")
+            logfire.error(
+                f"Jina Embeddings API failed: {e}. Falling back to local model."
+            )
             _ensure_fallback()
 
     return _embed_fallback(texts)

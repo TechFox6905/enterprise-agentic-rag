@@ -16,8 +16,12 @@ from app.ingestion.loaders.text_parser import parse_text
 from app.ingestion.loaders.html_parser import parse_html
 from app.ingestion.chunking.splitter import chunk_text
 
-TRUE_DATA_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data", "true_data")
-NOISY_DATA_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data", "noisy_data")
+TRUE_DATA_DIR = os.path.join(
+    os.path.dirname(os.path.dirname(__file__)), "data", "true_data"
+)
+NOISY_DATA_DIR = os.path.join(
+    os.path.dirname(os.path.dirname(__file__)), "data", "noisy_data"
+)
 NOISY_ALLOWED_EXTS = {".pptx", ".docx", ".txt"}
 
 

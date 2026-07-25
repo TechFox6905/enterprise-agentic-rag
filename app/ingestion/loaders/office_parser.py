@@ -1,6 +1,7 @@
 import logfire
 from unstructured.partition.auto import partition
 
+
 def parse_office(file_path: str):
     """
     Parses Office documents (.docx, .pptx) using the Unstructured library.
@@ -9,9 +10,11 @@ def parse_office(file_path: str):
     with logfire.span("📄 Office Document Parsing", filename=file_path):
         try:
             # Unstructured automatically detects if it's docx or pptx
-            elements = partition(filename=file_path)        # Automatically detects the document type and parses it into structured document elements.
+            elements = partition(
+                filename=file_path
+            )  # Automatically detects the document type and parses it into structured document elements.
             full_text = "\n".join([str(el) for el in elements])
-            
+
             if not full_text.strip():
                 logfire.warning(f"⚠️ Unstructured returned empty text for {file_path}")
             else:
@@ -21,4 +24,3 @@ def parse_office(file_path: str):
         except Exception as e:
             logfire.error(f"❌ Office Parse Failed: {e}")
             raise e
-

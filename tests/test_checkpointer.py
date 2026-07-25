@@ -39,6 +39,9 @@ def test_create_checkpointer_prefers_postgres_when_available():
 
 def test_create_checkpointer_falls_back_to_memory():
     """If Postgres dependencies are missing, fall back to MemorySaver."""
-    with patch.dict("sys.modules", {"langgraph.checkpoint.postgres": None}), patch("app.agents.graph.logfire"):
+    with (
+        patch.dict("sys.modules", {"langgraph.checkpoint.postgres": None}),
+        patch("app.agents.graph.logfire"),
+    ):
         cp = create_checkpointer()
         assert isinstance(cp, MemorySaver)

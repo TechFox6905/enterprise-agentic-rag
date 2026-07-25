@@ -28,7 +28,9 @@ def _init_rate_limiter(app: FastAPI) -> bool:
         # underlying Redis client so we only use Redis when it is really reachable.
         if not storage.check() or not storage.storage.ping():
             raise ConnectionError("Redis did not respond to ping")
-        app.state.limiter = Limiter(key_func=get_remote_address, storage_uri=settings.redis_url)
+        app.state.limiter = Limiter(
+            key_func=get_remote_address, storage_uri=settings.redis_url
+        )
         app.state.rate_limiter_storage = "redis"
         logfire.info("🚦 Rate limiting initialized via Redis.")
     except Exception as e:
@@ -38,7 +40,6 @@ def _init_rate_limiter(app: FastAPI) -> bool:
 
     app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
     return True
-
 
 
 def _get_limiter_rule(times: int, seconds: int) -> str:
@@ -63,6 +64,7 @@ class _AppLimiter:
     Limiter that is configured dynamically (Redis-backed in production or
     in-memory as a fallback).
     """
+
     def __init__(self):
         self.app: FastAPI | None = None
 
@@ -85,12 +87,16 @@ class _AppLimiter:
 
                 if request is None:
                     return func(*args, **kwargs)
-                
+
                 limiter = getattr(request.app.state, "limiter", None)
                 if limiter is None:
                     return func(*args, **kwargs)
 
-                rule = rule_or_callable() if callable(rule_or_callable) else rule_or_callable
+                rule = (
+                    rule_or_callable()
+                    if callable(rule_or_callable)
+                    else rule_or_callable
+                )
                 # Build the slowapi wrapper at request time so the limiter
                 # instance and storage backend are always current.
                 return limiter.limit(rule)(func)(*args, **kwargs)

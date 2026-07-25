@@ -140,7 +140,9 @@ def _check_jina_embeddings() -> ConnectionResult:
         payload = response.json()
         if not payload.get("data"):
             raise RuntimeError("empty embedding data")
-        return ConnectionResult("jina_embeddings", True, "Jina Embeddings API reachable")
+        return ConnectionResult(
+            "jina_embeddings", True, "Jina Embeddings API reachable"
+        )
     except Exception as e:
         logfire.warning(f"Jina Embeddings health check failed: {e}")
         return ConnectionResult("jina_embeddings", False, str(e))
@@ -183,14 +185,18 @@ def _check_logfire() -> ConnectionResult:
     the SDK is active. A missing token means all spans are silently dropped.
     """
     if not settings.LOGFIRE_TOKEN:
-        return ConnectionResult("logfire", False, "LOGFIRE_TOKEN not set — spans dropped")
+        return ConnectionResult(
+            "logfire", False, "LOGFIRE_TOKEN not set — spans dropped"
+        )
     return ConnectionResult("logfire", True, "Logfire configured")
 
 
 def _check_langsmith() -> ConnectionResult:
     """Verify LangSmith API key is valid and the endpoint is reachable."""
     if not settings.LANGSMITH_API_KEY:
-        return ConnectionResult("langsmith", False, "LANGSMITH_API_KEY not set — tracing disabled")
+        return ConnectionResult(
+            "langsmith", False, "LANGSMITH_API_KEY not set — tracing disabled"
+        )
     try:
         response = requests.get(
             f"{settings.LANGSMITH_ENDPOINT}/ok",
@@ -198,7 +204,11 @@ def _check_langsmith() -> ConnectionResult:
             timeout=5,
         )
         response.raise_for_status()
-        return ConnectionResult("langsmith", True, f"LangSmith reachable (project: {settings.LANGSMITH_PROJECT})")
+        return ConnectionResult(
+            "langsmith",
+            True,
+            f"LangSmith reachable (project: {settings.LANGSMITH_PROJECT})",
+        )
     except Exception as e:
         logfire.warning(f"LangSmith health check failed: {e}")
         return ConnectionResult("langsmith", False, str(e))

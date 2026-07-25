@@ -28,14 +28,19 @@ def test_check_neon_postgres_success():
     mock_pool = MagicMock()
     mock_conn = MagicMock()
     mock_pool.getconn.return_value = mock_conn
-    with patch("app.services.health.connection_checker.ConnectionPool", return_value=mock_pool):
+    with patch(
+        "app.services.health.connection_checker.ConnectionPool", return_value=mock_pool
+    ):
         result = _check_neon_postgres()
     assert result.healthy is True
     assert result.name == "postgres"
 
 
 def test_check_neon_postgres_failure():
-    with patch("app.services.health.connection_checker.ConnectionPool", side_effect=Exception("conn refused")):
+    with patch(
+        "app.services.health.connection_checker.ConnectionPool",
+        side_effect=Exception("conn refused"),
+    ):
         result = _check_neon_postgres()
     assert result.healthy is False
     assert "conn refused" in result.message
@@ -43,7 +48,9 @@ def test_check_neon_postgres_failure():
 
 def test_check_upstash_redis_success():
     mock_redis = MagicMock()
-    with patch("app.services.health.connection_checker.Redis.from_url", return_value=mock_redis):
+    with patch(
+        "app.services.health.connection_checker.Redis.from_url", return_value=mock_redis
+    ):
         result = _check_upstash_redis()
     assert result.healthy is True
     assert result.name == "redis"
@@ -51,14 +58,19 @@ def test_check_upstash_redis_success():
 
 
 def test_check_upstash_redis_failure():
-    with patch("app.services.health.connection_checker.Redis.from_url", side_effect=Exception("timeout")):
+    with patch(
+        "app.services.health.connection_checker.Redis.from_url",
+        side_effect=Exception("timeout"),
+    ):
         result = _check_upstash_redis()
     assert result.healthy is False
 
 
 def test_check_qdrant_success():
     mock_client = MagicMock()
-    with patch("app.services.health.connection_checker.QdrantClient", return_value=mock_client):
+    with patch(
+        "app.services.health.connection_checker.QdrantClient", return_value=mock_client
+    ):
         result = _check_qdrant()
     assert result.healthy is True
     assert result.name == "qdrant"
@@ -66,7 +78,10 @@ def test_check_qdrant_success():
 
 
 def test_check_qdrant_failure():
-    with patch("app.services.health.connection_checker.QdrantClient", side_effect=Exception("unauthorized")):
+    with patch(
+        "app.services.health.connection_checker.QdrantClient",
+        side_effect=Exception("unauthorized"),
+    ):
         result = _check_qdrant()
     assert result.healthy is False
 
@@ -104,7 +119,10 @@ def test_check_jina_embeddings_success():
     mock_response = MagicMock()
     mock_response.json.return_value = {"data": [{"embedding": [0.1]}]}
     mock_response.raise_for_status = MagicMock()
-    with patch("app.services.health.connection_checker.requests.post", return_value=mock_response):
+    with patch(
+        "app.services.health.connection_checker.requests.post",
+        return_value=mock_response,
+    ):
         result = _check_jina_embeddings()
     assert result.healthy is True
     assert result.name == "jina_embeddings"
@@ -121,7 +139,10 @@ def test_check_jina_reranker_success():
     mock_response = MagicMock()
     mock_response.json.return_value = {"results": [{"index": 0}]}
     mock_response.raise_for_status = MagicMock()
-    with patch("app.services.health.connection_checker.requests.post", return_value=mock_response):
+    with patch(
+        "app.services.health.connection_checker.requests.post",
+        return_value=mock_response,
+    ):
         result = _check_jina_reranker()
     assert result.healthy is True
     assert result.name == "jina_reranker"
@@ -129,8 +150,13 @@ def test_check_jina_reranker_success():
 
 def test_check_jina_reranker_failure():
     mock_response = MagicMock()
-    mock_response.raise_for_status.side_effect = requests.HTTPError("service unavailable")
-    with patch("app.services.health.connection_checker.requests.post", return_value=mock_response):
+    mock_response.raise_for_status.side_effect = requests.HTTPError(
+        "service unavailable"
+    )
+    with patch(
+        "app.services.health.connection_checker.requests.post",
+        return_value=mock_response,
+    ):
         result = _check_jina_reranker()
     assert result.healthy is False
     assert result.name == "jina_reranker"

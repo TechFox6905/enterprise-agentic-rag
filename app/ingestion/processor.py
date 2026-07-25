@@ -17,7 +17,9 @@ if settings.LOGFIRE_TOKEN:
     logfire.configure(
         token=settings.LOGFIRE_TOKEN,
         service_name="enterprise-ingestion-service",
-        advanced=logfire.AdvancedOptions(base_url=_logfire_base_url) if _logfire_base_url else None,
+        advanced=logfire.AdvancedOptions(base_url=_logfire_base_url)
+        if _logfire_base_url
+        else None,
     )
 
 from qdrant_client import QdrantClient
@@ -35,7 +37,7 @@ logfire.configure(service_name="enterprise-ingestion-service")
 # Local folder where parsed + chunked JSON metadata is saved (replaces GCS processed bucket)
 PROCESSED_DATA_DIR = "processed_data"
 
-# Initialize Qdrant Client 
+# Initialize Qdrant Client
 qdrant_client = QdrantClient(
     url=settings.QDRANT_URL,
     api_key=settings.QDRANT_API_KEY,
@@ -66,6 +68,7 @@ def process_file(file_path: str, filename: str, source_type: str):
                 full_text = parse_text(file_path)
             elif ext in ("docx", "pptx"):
                 from app.ingestion.loaders.office_parser import parse_office
+
                 full_text = parse_office(file_path)
             else:
                 logfire.warning(f"Skipping unsupported file type: {filename}")
@@ -118,25 +121,30 @@ def process_file(file_path: str, filename: str, source_type: str):
 def process_directory(dir_path: str, source_type: str):
     """Process every file in a directory."""
     with logfire.span("Scanning Directory", path=dir_path, source=source_type):
-        files = [f for f in os.listdir(dir_path) if os.path.isfile(os.path.join(dir_path, f))]
+        files = [
+            f for f in os.listdir(dir_path) if os.path.isfile(os.path.join(dir_path, f))
+        ]
         logfire.info(f"Found {len(files)} files in {dir_path}.")
         for filename in files:
             process_file(os.path.join(dir_path, filename), filename, source_type)
 
 
-def run_universal_ingestion(base_dir: str, explicit_source_type: str = None, wipe: bool = False):
+def run_universal_ingestion(
+    base_dir: str, explicit_source_type: str = None, wipe: bool = False
+):
     """
     Scan base_dir, map sub-folders to source types, and ingest all documents.
     Pass --wipe to drop and recreate the Qdrant collection before ingestion.
     """
     with logfire.span("Universal Ingestion Started", base_directory=base_dir):
-
         # Wipe collection if requested
         if wipe:
             with logfire.span("Wiping Collection"):
                 if qdrant_client.collection_exists(settings.QDRANT_COLLECTION):
                     qdrant_client.delete_collection(settings.QDRANT_COLLECTION)
-                    logfire.info(f"Existing Collection '{settings.QDRANT_COLLECTION}' deleted.")
+                    logfire.info(
+                        f"Existing Collection '{settings.QDRANT_COLLECTION}' deleted."
+                    )
 
         # Recreate collection — dimension resolved at runtime after embedding model probe
         if not qdrant_client.collection_exists(settings.QDRANT_COLLECTION):
@@ -155,8 +163,7 @@ def run_universal_ingestion(base_dir: str, explicit_source_type: str = None, wip
 
         # Route to sub-folders or treat the whole dir as one source
         subdirs = [
-            d for d in os.listdir(base_dir)
-            if os.path.isdir(os.path.join(base_dir, d))
+            d for d in os.listdir(base_dir) if os.path.isdir(os.path.join(base_dir, d))
         ]
 
         if not subdirs:
@@ -165,17 +172,23 @@ def run_universal_ingestion(base_dir: str, explicit_source_type: str = None, wip
             else:
                 base_name = os.path.basename(os.path.normpath(base_dir)).lower()
                 source_type = (
-                    "true" if "true" in base_name
-                    else "noisy" if "noisy" in base_name
+                    "true"
+                    if "true" in base_name
+                    else "noisy"
+                    if "noisy" in base_name
                     else "general"
                 )
-            logfire.info(f"No sub-folders found — processing '{base_dir}' as '{source_type}'.")
+            logfire.info(
+                f"No sub-folders found — processing '{base_dir}' as '{source_type}'."
+            )
             process_directory(base_dir, source_type)
         else:
             for subdir in subdirs:
                 source_type = (
-                    "true" if "true" in subdir.lower()
-                    else "noisy" if "noisy" in subdir.lower()
+                    "true"
+                    if "true" in subdir.lower()
+                    else "noisy"
+                    if "noisy" in subdir.lower()
                     else subdir
                 )
                 process_directory(os.path.join(base_dir, subdir), source_type)
@@ -195,5 +208,7 @@ if __name__ == "__main__":
         print(f"Error: path '{target_dir}' does not exist.")
         sys.exit(1)
 
-    run_universal_ingestion(target_dir, explicit_source_type=explicit_type, wipe=wipe_requested)
+    run_universal_ingestion(
+        target_dir, explicit_source_type=explicit_type, wipe=wipe_requested
+    )
     logfire.info("Ingestion job completed.")

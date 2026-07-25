@@ -25,7 +25,9 @@ compute_guardrails_metrics = guardrails_mod.compute_guardrails_metrics
 
 
 def test_detect_tool_maps_thought_process():
-    assert detect_tool(["Intent: Technical", "Search Term: Redis"]) == "retrieve_documents"
+    assert (
+        detect_tool(["Intent: Technical", "Search Term: Redis"]) == "retrieve_documents"
+    )
     assert detect_tool(["Intent: Conversational/Memory"]) == "direct_answer"
     assert detect_tool(["Intent: Guardrails Fired"]) == "guardrails"
     assert detect_tool([]) == "unknown"
@@ -57,7 +59,9 @@ def test_run_pipeline_populates_actual_response():
         "sources": ["ctx1"],
     }
 
-    with patch.object(pipeline_mod.requests, "post", return_value=post_resp) as mock_post:
+    with patch.object(
+        pipeline_mod.requests, "post", return_value=post_resp
+    ) as mock_post:
         result = run_pipeline(golden, progress_callback=None)
 
     sample = result["rag_samples"][0]
